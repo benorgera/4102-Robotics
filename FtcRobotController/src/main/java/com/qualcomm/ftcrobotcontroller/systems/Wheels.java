@@ -3,6 +3,7 @@ package com.qualcomm.ftcrobotcontroller.systems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 /**
  * Created by benorgera on 11/1/15.
@@ -177,7 +178,7 @@ public class Wheels {
         }
     }
 
-    public void turn(int degrees, int skew, GyroSensor gyro) { //right is positive, left is negative
+    public void turn(int degrees, double skew, GyroSensor gyro) { //right is positive, left is negative
 
         forceHeadingReset(gyro);
 

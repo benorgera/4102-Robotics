@@ -3,6 +3,7 @@ package com.qualcomm.ftcrobotcontroller.systems;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.robocol.Telemetry;
 
 /**
@@ -10,16 +11,16 @@ import com.qualcomm.robotcore.robocol.Telemetry;
  */
 public class Necessities {
 
-    private final double maxDcMotorPower = 1.0;
-    private final double minDcMotorPower = 0.0;
+    private VoltageSensor v;
 
     private Telemetry t;
 
     private LinearOpMode l;
 
-    public Necessities(Telemetry t, LinearOpMode l) {
+    public Necessities(Telemetry t, LinearOpMode l, VoltageSensor v) {
         this.t = t;
         this.l = l;
+        this.v = v;
     }
 
     public void syso(String s, String title) { //prints data from components to screen
@@ -35,14 +36,6 @@ public class Necessities {
         }
     }
 
-
-    public double getMaxDcMotorPower() {
-        return maxDcMotorPower;
-    }
-
-    public double getMinDcMotorPower() {
-        return minDcMotorPower;
-    }
 
     //methods only needed by htechnic
 
@@ -88,4 +81,9 @@ public class Necessities {
         }
 
     }
+
+    public double getVoltage() {
+        return v.getVoltage();
+    }
+
 }

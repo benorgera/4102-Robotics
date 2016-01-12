@@ -28,9 +28,9 @@ public class AutonomousBLUE extends LinearOpMode {
 
     public void initializeAutonomous() throws InterruptedException {
 
-        n = new Necessities(this.telemetry, this);
-
         hardwareMap.logDevices();
+
+        n = new Necessities(this.telemetry, this, hardwareMap.voltageSensor.get("ModernRoboticsMC"));
 
         n.syso("Initializing Autonomous Began", "Initializing:");
 
