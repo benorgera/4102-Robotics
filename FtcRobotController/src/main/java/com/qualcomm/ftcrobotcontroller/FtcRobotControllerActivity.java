@@ -350,11 +350,13 @@ public class FtcRobotControllerActivity extends Activity {
   }
 
   private void requestRobotShutdown() {
+    Toast.makeText(context, "REQUEST ROBOT SHUTDOWN: Restarting Robot", Toast.LENGTH_SHORT).show(); /////////////
     if (controllerService == null) return;
     controllerService.shutdownRobot();
   }
 
   private void requestRobotRestart() {
+    Toast.makeText(context, "REQUEST ROBOT RESTART: Restarting Robot", Toast.LENGTH_SHORT).show(); //////////////////////////////
     requestRobotShutdown();
     requestRobotSetup();
   }

@@ -30,7 +30,7 @@ public class AutonomousBLUE extends LinearOpMode {
 
         hardwareMap.logDevices();
 
-        n = new Necessities(this.telemetry, this, hardwareMap.voltageSensor.get("ModernRoboticsMC"));
+        n = new Necessities(this.telemetry, this);
 
         n.syso("Initializing Autonomous Began", "Initializing:");
 

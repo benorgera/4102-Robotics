@@ -14,8 +14,8 @@ public class ZipLineHitters {
 
     private Necessities n;
 
-    private boolean isOne = false;
-    private boolean isOne2 = false;
+    private boolean isOne = true;
+    private boolean isOne2 = true;
 
 
 
@@ -23,8 +23,8 @@ public class ZipLineHitters {
         this.servo = servo;
         this.n = n;
         this.servo2 = servo2;
-        servo.setPosition(0);
-        servo2.setPosition(1);
+        servo.setPosition(0.3);
+        servo2.setPosition(0.7);
     }
 
     public void toggleLeft() { //moves left or right arm up or down
@@ -32,7 +32,7 @@ public class ZipLineHitters {
             servo2.setPosition(0);
             isOne = false;
         } else {
-            servo2.setPosition(1);
+            servo2.setPosition(0.7);
             isOne = true;
         }
     }
@@ -42,7 +42,7 @@ public class ZipLineHitters {
             servo.setPosition(1);
             isOne2 = false;
         } else {
-            servo.setPosition(0);
+            servo.setPosition(0.3);
             isOne2 = true;
         }
     }

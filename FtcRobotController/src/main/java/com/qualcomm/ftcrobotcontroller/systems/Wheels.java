@@ -3,7 +3,6 @@ package com.qualcomm.ftcrobotcontroller.systems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 /**
  * Created by benorgera on 11/1/15.
@@ -153,19 +152,6 @@ public class Wheels {
 
     }
 
-    public int getLeftCurrentPosition() { //called by autonomous
-
-        int blah = left.getCurrentPosition();
-        return blah;
-    }
-
-    public int getRightCurrentPosition() {
-
-        int blah = right.getCurrentPosition();
-        return blah;
-    }
-
-
     private void forceResetEncoders() {
 
         if (left.getCurrentPosition() != 0 || right.getCurrentPosition()!= 0) { //they're not 0
@@ -178,29 +164,39 @@ public class Wheels {
         }
     }
 
-    public void turn(int degrees, double skew, GyroSensor gyro) { //right is positive, left is negative
+    public void turn(double degrees, double skew,  GyroSensor gyro) { //right is positive, left is negative
 
         forceHeadingReset(gyro);
 
+        double power;
 
-        if (degrees > 0) { //right turn
-            while (gyro.getHeading() < degrees - skew) {
-                left.setPower(.3);
-                right.setPower(-.3);
-                n.syso("Position: " + gyro.getHeading() + "\nTarget: " + degrees, "Autonomous Left Turn");
-                wait(1);
-                waitAndStop(2);
-            }
-        } else { //left turn
-            while (gyro.getHeading() > degrees + skew) {
-                left.setPower(-.3);
-                right.setPower(.3);
-                n.syso("Position: " + gyro.getHeading() + "\nTarget: " + degrees, "Autonomous Right Turn");
-                wait(1);
-                waitAndStop(2);
-            }
+        double minPower = 0.16;
+
+        boolean degreesIsGreaterThanZero = (degrees > 0.0);
+
+        double startSlowingAt = 4.0 / minPower;
+
+        double holdingPower = -0.3;
+
+        double threshold = (degreesIsGreaterThanZero ? (degrees - skew) : (degrees + skew));
+
+        while (Math.abs(gyro.getHeading()) < Math.abs(threshold)) {
+
+            double degreesRemaining = Math.abs(threshold) - Math.abs(gyro.getHeading()); //calculate remaining degrees
+
+            power = (degreesRemaining / startSlowingAt); //power is a scale of remaining distance, at startSlowingAt degrees remaining we start slowing down
+
+            if (power > 1.0) power = 1.0; //too high a power calculated
+
+            if (power < minPower) power = minPower; //too low a power calculated
+
+            left.setPower(degreesIsGreaterThanZero ? power : holdingPower);
+            right.setPower(degreesIsGreaterThanZero ? holdingPower : power);
+            n.syso("Position: " + gyro.getHeading() + "\nTarget: " + threshold + "\nPower: " + power, "Autonomous Turn");
+            wait(1);
+            waitAndStop(2);
+
         }
-
         stop();
 
     }
@@ -243,10 +239,9 @@ public class Wheels {
         n.syso("" + right.getCurrentPosition(), "Right Current Position");
 
         while (Math.abs(right.getCurrentPosition()) < rotations) {
-            drive(power, power); //drive, left slightly slower
-            n.syso("" + right.getCurrentPosition(),  "Right Position");
+            drive(power, power);
+            n.syso("Current Position: " + right.getCurrentPosition() + "\nTarget Position: " + rotations + "\nPower: " + power, "Drive Straight");
         }
-
 
         stop();
 

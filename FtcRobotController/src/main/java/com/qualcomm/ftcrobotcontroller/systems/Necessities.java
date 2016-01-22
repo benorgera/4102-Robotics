@@ -17,10 +17,9 @@ public class Necessities {
 
     private LinearOpMode l;
 
-    public Necessities(Telemetry t, LinearOpMode l, VoltageSensor v) {
+    public Necessities(Telemetry t, LinearOpMode l) {
         this.t = t;
         this.l = l;
-        this.v = v;
     }
 
     public void syso(String s, String title) { //prints data from components to screen
@@ -55,12 +54,12 @@ public class Necessities {
 //
 //        int i = 1;
 //        while (controller.getMotorControllerDeviceMode() != DcMotorController.DeviceMode.WRITE_ONLY) {
-//            syso("Waited " + i + " cycles for controller mode switch", "Switching to Write Mode");
+//
+//      syso("Waited " + i + " cycles for controller mode switch", "Switching to Write Mode");
 //            i++;
 //            waitCycle();
 //        }
 //    }
-
     public void waitCycle() {
         try {
             l.waitOneFullHardwareCycle();
@@ -80,10 +79,6 @@ public class Necessities {
             waitCycle();
         }
 
-    }
-
-    public double getVoltage() {
-        return v.getVoltage();
     }
 
 }

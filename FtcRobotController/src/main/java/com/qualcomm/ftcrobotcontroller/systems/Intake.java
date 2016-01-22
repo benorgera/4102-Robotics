@@ -46,7 +46,7 @@ public class Intake {
 
         frontDoorServo.setPosition(frontDoorPositions[1]);
         n.syso("Door opened", "Intake Data:");
-        intakeMotor.setPower(n.getMaxDcMotorPower());
+        intakeMotor.setPower(1.0);
         n.syso("Debris pickup began", "Intake Data:");
     }
 
@@ -54,7 +54,7 @@ public class Intake {
 
         frontDoorServo.setPosition(frontDoorPositions[0]);
         n.syso("Door closed", "Intake Data");
-        intakeMotor.setPower(n.getMinDcMotorPower());
+        intakeMotor.setPower(1.0);
         n.syso("Debris pickup ended", "Intake Data:");
 
     }
@@ -74,7 +74,7 @@ public class Intake {
 
     public void stopDrop() { //ends the dropping of debrise
 
-        beltMotor.setPower(n.getMinDcMotorPower()); //motor stopped
+        beltMotor.setPower(0); //motor stopped
 
         //doors closed
         leftDoorServo.setPosition(leftDoorPositions[0]);
@@ -92,7 +92,7 @@ public class Intake {
     }
 
     public void unjam() {
-        intakeMotor.setPower(n.getMaxDcMotorPower() * -1);
+        intakeMotor.setPower(-1.0);
     }
 
 

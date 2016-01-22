@@ -34,37 +34,39 @@ public class AutonomousImplementation {
 
         while (gyro.isCalibrating()) n.syso("Gyro Still Calibrating", "Autonomous");
 
-        double skew = calculateSkew();
+        double skew = 4.0;
 
-        n.syso(Double.toString(skew), "SKEW");
+        double initialPower = 0.60;
+
+        double secondaryPower = 0.10;
 
         n.syso("Straight Drive 1 Beginning", "Autonomous");
-        wheels.driveStraight(1200, 1);
+        wheels.driveStraight(1200, initialPower);
         n.syso("Straight Drive 1 Done", "Autonomous");
 
 
         waitALittle();
 
         n.syso("Turn 1 Beginning", "Autonomous");
-        wheels.turn(45 * (color == MyDirection.BLUE ? 1 : -1), skew, gyro);
+        wheels.turn(45.0 * (color == MyDirection.BLUE ? 1.0 : -1.0), skew, gyro);
         n.syso("Turn 1 Done", "Autonomous");
 
         waitALittle();
 
         n.syso("Drive Straight 2 Beginning", "Autonomous");
-        wheels.driveStraight(6330, 1);
+        wheels.driveStraight(6000, initialPower);
         n.syso("Drive Straight 2 Finished", "Autonomous");
 
         waitALittle();
 
         n.syso("Turn 2 Beginning", "Autonomous");
-        wheels.turn(45 * (color == MyDirection.BLUE ? 1 : -1), skew, gyro);
+        wheels.turn(45.0 * (color == MyDirection.BLUE ? 1.0 : -1.0), skew, gyro);
         n.syso("Turn 2 Finished", "Autonomous");
 
         waitALittle();
 
         n.syso("Drive Straight 3 Beginning", "Autonomous");
-        wheels.driveStraight(509, 1);
+        wheels.driveStraight(1150, initialPower);
         n.syso("Drive Straight 3 Finished", "Autonomous");
 
         waitALittle();
@@ -93,19 +95,4 @@ public class AutonomousImplementation {
         }
     }
 
-    private double calculateSkew() {
-        int checks = 5;
-
-        double voltage = 0;
-
-        for (int i = 0; i < checks; i ++) { //get avg voltage
-            voltage += n.getVoltage();
-            n.sleep(100);
-        }
-
-        voltage = voltage/ checks;
-
-        return (voltage - 11.5) * 5;
-
-    }
 }
