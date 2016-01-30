@@ -69,22 +69,22 @@ public class AutonomousImplementation {
         wheels.driveStraight(1150, initialPower);
         n.syso("Drive Straight 3 Finished", "Autonomous");
 
-        waitALittle();
-
-        depositor.swing();
-
-        for (int i = 0; i < 5; i ++) waitALittle();
-
-        depositor.drop();
-
-        for (int i = 0; i < 3; i ++) waitALittle();
-
-        depositor.swing();
-
-        n.syso("Button Push Beginning", "Autonomous");
-        n.syso("Button Push " + (pusher.senseAndPush(color) ? "Was Successful" : "Failed"), "Autonomous");
-
-        waitALittle();
+//        waitALittle();
+//
+//        depositor.swing();
+//
+//        for (int i = 0; i < 5; i ++) waitALittle();
+//
+//        depositor.drop();
+//
+//        for (int i = 0; i < 3; i ++) waitALittle();
+//
+//        depositor.swing();
+//
+//        n.syso("Button Push Beginning", "Autonomous");
+//        n.syso("Button Push " + (pusher.senseAndPush(color) ? "Was Successful" : "Failed"), "Autonomous");
+//
+//        waitALittle();
 
     }
 

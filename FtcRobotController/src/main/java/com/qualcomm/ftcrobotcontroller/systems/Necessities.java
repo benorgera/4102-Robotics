@@ -23,8 +23,7 @@ public class Necessities {
     }
 
     public void syso(String s, String title) { //prints data from components to screen
-        t.addData(title, "\t" + s);
-        System.out.println(title + "\t" + s);
+        t.addData(title, s);
     }
 
     public void sleep(long ms) {

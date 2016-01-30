@@ -11,6 +11,10 @@ public class Wheels {
 
     private boolean isBackward = false;
 
+    private boolean isHolding = false;
+
+    private double holdingPower = 0.16;
+
     private DcMotor left;
 
     private DcMotor right;
@@ -20,7 +24,6 @@ public class Wheels {
     private final double minHypotenuseLength = 0.2; //lowest value the hypotenuse can be in order to turn
 
     private DcMotorController controller;
-
 
     public Wheels(DcMotor left, DcMotor right, Necessities n) {
 
@@ -38,8 +41,8 @@ public class Wheels {
 
     public void stop() { //stops the motors because the robot isn't being driven
 
-        left.setPower(0);
-        right.setPower(0);
+        left.setPower(isHolding ? holdingPower : 0);
+        right.setPower(isHolding ? holdingPower : 0);
 
         n.syso("Robot is stopped", "Wheels Data:");
 
@@ -170,7 +173,7 @@ public class Wheels {
 
         double power;
 
-        double minPower = 0.16;
+        double minPower = 0.19;
 
         boolean degreesIsGreaterThanZero = (degrees > 0.0);
 
@@ -253,5 +256,6 @@ public class Wheels {
         this.isBackward = isBackward;
     }
 
+    public void toggleHolding(boolean isHolding) { this.isHolding = isHolding; }
 
 }
