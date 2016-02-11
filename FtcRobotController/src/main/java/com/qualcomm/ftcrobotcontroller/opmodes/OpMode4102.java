@@ -49,7 +49,7 @@ public class OpMode4102 extends LinearOpMode {
 
         wheels = new Wheels(hardwareMap.dcMotor.get("Left"), hardwareMap.dcMotor.get("Right"), n);
 
-        arm = new Arm(hardwareMap.servo.get("Latch"), hardwareMap.dcMotor.get("Arm"), n);
+        arm = new Arm(hardwareMap.servo.get("Latch"), hardwareMap.servo.get("ArmHolder"), hardwareMap.dcMotor.get("Arm"), n);
 
         allClearSignHitters = new AllClearSignHitters(hardwareMap.dcMotor.get("AllClear"), n);
 

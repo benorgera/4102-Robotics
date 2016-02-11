@@ -13,7 +13,7 @@ public class Wheels {
 
     private boolean isHolding = false;
 
-    private double holdingPower = 0.16;
+    private double holdingPower = -0.16;
 
     private DcMotor left;
 
@@ -23,11 +23,7 @@ public class Wheels {
 
     private final double minHypotenuseLength = 0.2; //lowest value the hypotenuse can be in order to turn
 
-    private DcMotorController controller;
-
     public Wheels(DcMotor left, DcMotor right, Necessities n) {
-
-        controller = left.getController();
 
         left.setDirection(DcMotor.Direction.REVERSE);
 
@@ -49,8 +45,6 @@ public class Wheels {
     }
 
     public void drive(double leftWheelsPower, double rightWheelsPower) {
-
-        controller.setMotorControllerDeviceMode(DcMotorController.DeviceMode.SWITCHING_TO_WRITE_MODE);
 
         if (leftWheelsPower > 1) leftWheelsPower = 1;
 
