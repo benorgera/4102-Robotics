@@ -8,6 +8,7 @@ import com.qualcomm.ftcrobotcontroller.systems.Necessities;
 import com.qualcomm.ftcrobotcontroller.systems.Wheels;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 
 /**
@@ -21,8 +22,6 @@ public class AutonomousBLUE extends LinearOpMode {
 
     private MyDirection color = MyDirection.BLUE;
 
-    private GyroSensor gyro;
-
     private Necessities n;
 
 
@@ -34,14 +33,10 @@ public class AutonomousBLUE extends LinearOpMode {
 
         n.syso("Initializing Autonomous Began", "Initializing:");
 
-        gyro = hardwareMap.gyroSensor.get("gyro");
-
         pusher = new ButtonPusher(hardwareMap.servo.get("BP"), hardwareMap.colorSensor.get("Left Color Sensor"), hardwareMap.colorSensor.get("Right Color Sensor"), hardwareMap.led.get("Left LED"), hardwareMap.led.get("Right LED"), n);
         depositor = new ClimberDepositor(hardwareMap.servo.get("PL Arm"), hardwareMap.servo.get("PL Drop"), n);
 
         wheels = new Wheels(hardwareMap.dcMotor.get("Left"), hardwareMap.dcMotor.get("Right"), n);
-
-        gyro.calibrate();
 
         n.syso("Initializing Autonomous " +
                 "Completed", "Initializing:");
@@ -57,7 +52,15 @@ public class AutonomousBLUE extends LinearOpMode {
 
         waitOneFullHardwareCycle();
 
-        AutonomousImplementation implementation = new AutonomousImplementation(n, gyro, wheels, pusher, depositor, color);
+        AutonomousImplementation implementation = new AutonomousImplementation(n,
+                wheels,
+                hardwareMap.opticalDistanceSensor.get("ODS"),
+                hardwareMap.colorSensor.get("Front Left CS"),
+                hardwareMap.colorSensor.get("Front Right CS"),
+                pusher,
+                depositor,
+                color);
+
         implementation.run();
 
     }

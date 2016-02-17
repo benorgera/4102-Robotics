@@ -35,30 +35,6 @@ public class Necessities {
     }
 
 
-    //methods only needed by htechnic
-
-//    public void readMode(DcMotorController controller) {
-//        controller.setMotorControllerDeviceMode(DcMotorController.DeviceMode.READ_ONLY);
-//        int i = 1;
-//
-//        while (controller.getMotorControllerDeviceMode() != DcMotorController.DeviceMode.READ_ONLY) {
-//            syso("Waited " + i + " cycles for mode switch", "Switching to Write Mode");
-//            i++;
-//            waitCycle();
-//        }
-//    }
-//
-//    public void writeMode(DcMotorController controller) {
-//        controller.setMotorControllerDeviceMode(DcMotorController.DeviceMode.WRITE_ONLY);
-//
-//        int i = 1;
-//        while (controller.getMotorControllerDeviceMode() != DcMotorController.DeviceMode.WRITE_ONLY) {
-//
-//      syso("Waited " + i + " cycles for controller mode switch", "Switching to Write Mode");
-//            i++;
-//            waitCycle();
-//        }
-//    }
     public void waitCycle() {
         try {
             l.waitOneFullHardwareCycle();
@@ -68,16 +44,5 @@ public class Necessities {
         }
     }
 
-    public void setMotorMode(DcMotor motor, DcMotorController.RunMode runMode) {
-        motor.setMode(runMode);
-        int i = 1;
-        while (motor.getMode() != runMode) {
-            motor.setMode(runMode);
-            syso("Waited " + i + " cycles for motor mode switch", "Switching to Write Mode");
-            i++;
-            waitCycle();
-        }
-
-    }
 
 }

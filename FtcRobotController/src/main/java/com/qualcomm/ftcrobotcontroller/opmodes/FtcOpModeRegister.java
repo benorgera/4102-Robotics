@@ -63,12 +63,12 @@ public class FtcOpModeRegister implements OpModeRegister {
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
-    manager.register("AdafruitRGBExample", AdafruitRGBExample.class);
     manager.register("OpMode4102", OpMode4102.class);
     manager.register("AutonomousRED", AutonomousRED.class);
     manager.register("AutonomousBLUE", AutonomousBLUE.class);
+    manager.register("HTRGBExample", HTRGBExample.class);
+    manager.register("ODS_TEST", ODS_TEST.class);
 
-    manager.register("OpMode7959", OpMode7959.class);
     //manager.register("AdafruitRGBExample", AdafruitRGBExample.class);
     //manager.register("ColorSensorDriver", ColorSensorDriver.class);
 

@@ -6,7 +6,9 @@ import com.qualcomm.ftcrobotcontroller.systems.ClimberDepositor;
 import com.qualcomm.ftcrobotcontroller.systems.MyDirection;
 import com.qualcomm.ftcrobotcontroller.systems.Necessities;
 import com.qualcomm.ftcrobotcontroller.systems.Wheels;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 /**
  * Created by benorgera on 12/22/15.
@@ -14,85 +16,115 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 
 public class AutonomousImplementation {
 
-    private GyroSensor gyro;
+    private boolean firstDrive = true; //true if this is the initial drive straight
+
     private Necessities n;
     private Wheels wheels;
+    private OpticalDistanceSensor ods;
+    private ColorSensor leftBottom;
+    private ColorSensor rightBottom;
     private ButtonPusher pusher;
     private MyDirection color;
     private ClimberDepositor depositor;
 
-    public AutonomousImplementation(Necessities n, GyroSensor gyro, Wheels wheels, ButtonPusher pusher, ClimberDepositor depositor, MyDirection color) {
-        this.gyro = gyro;
+    public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ButtonPusher pusher, ClimberDepositor depositor, MyDirection color) {
         this.n = n;
+        this.ods = ods;
         this.pusher = pusher;
         this.wheels = wheels;
         this.color = color;
         this.depositor = depositor;
+        this.leftBottom = leftBottom;
+        this.rightBottom = rightBottom;
     }
 
     public void run() {
 
-        while (gyro.isCalibrating()) n.syso("Gyro Still Calibrating", "Autonomous");
+        while (ods.getLightDetected() < 0.3) {
 
-        double skew = 4.0;
-
-        double initialPower = 0.60;
-
-        double secondaryPower = 0.10;
-
-        n.syso("Straight Drive 1 Beginning", "Autonomous");
-        wheels.driveStraight(1200, initialPower);
-        n.syso("Straight Drive 1 Done", "Autonomous");
+            int left = leftBottom.green();
+            int right = rightBottom.green();
+            String mode = null;
 
 
-        waitALittle();
+            if (left < 11 && right < 11) { //not at all on the line
+                straight();
+                mode = "Straight b/c not on line";
 
-        n.syso("Turn 1 Beginning", "Autonomous");
-        wheels.turn(45.0 * (color == MyDirection.BLUE ? 1.0 : -1.0), skew, gyro);
-        n.syso("Turn 1 Done", "Autonomous");
+            } else {
 
-        waitALittle();
+                if (firstDrive) {
+                    if (color == MyDirection.BLUE) {
+                        strongRight();
+                    } else {
+                        strongLeft();
+                    }
+                    n.sleep(100);
+                }
 
-        n.syso("Drive Straight 2 Beginning", "Autonomous");
-        wheels.driveStraight(6000, initialPower);
-        n.syso("Drive Straight 2 Finished", "Autonomous");
+                firstDrive = false; //no longer the first drive
 
-        waitALittle();
+                int difference = Math.abs(left - right); //how far off are they
 
-        n.syso("Turn 2 Beginning", "Autonomous");
-        wheels.turn(45.0 * (color == MyDirection.BLUE ? 1.0 : -1.0), skew, gyro);
-        n.syso("Turn 2 Finished", "Autonomous");
+                int lesser = right < left ? right : left;
+                int greater = right > left ? right : left;
 
-        waitALittle();
+                if (difference < 1.5 && left > 14 && right > 14) { //they are both definitely on the white (greater than 14) and pretty close to eachother
+                    straight();
+                    mode = "Weak straight b/c both on line";
+                } else if (lesser < 8) { //one of them is completely off the line
+                    if (lesser == left) {
+                        strongRight();
+                        mode = "Strong right b/c left off line";
+                    } else {
+                        strongLeft();
+                        mode = "Strong left b/c right off line";
+                    }
+                } else {
+                    if (left > right) {
+                        slightRight();
+                        mode = "Slight right b/c left weaker";
+                    } else {
+                        slightLeft();
+                        mode = "Slight left b/c right weaker";
+                    }
 
-        n.syso("Drive Straight 3 Beginning", "Autonomous");
-        wheels.driveStraight(1150, initialPower);
-        n.syso("Drive Straight 3 Finished", "Autonomous");
+                }
 
-//        waitALittle();
-//
-//        depositor.swing();
-//
-//        for (int i = 0; i < 5; i ++) waitALittle();
-//
-//        depositor.drop();
-//
-//        for (int i = 0; i < 3; i ++) waitALittle();
-//
-//        depositor.swing();
-//
-//        n.syso("Button Push Beginning", "Autonomous");
-//        n.syso("Button Push " + (pusher.senseAndPush(color) ? "Was Successful" : "Failed"), "Autonomous");
-//
-//        waitALittle();
+                n.syso(mode, "MODE");
 
-    }
+                n.syso("" + ods.getLightDetected(), "ODS");
 
-    private void waitALittle() {
-        for (int i = 0; i < 13; i ++) {
-            n.waitCycle();
-            wheels.stop(); //never should be driving while waiting
+                n.waitCycle();
+
+            }
+
         }
+
+
     }
 
+
+
+    private void straight() {
+        double power = 0.2;
+
+        wheels.drive(power, power);
+    }
+
+    private void strongRight() {
+        wheels.drive(0.3, -0.3);
+    }
+
+    private void slightRight() {
+        wheels.drive(0.3, 0.1);
+    }
+
+    private void strongLeft() {
+        wheels.drive(-0.3, 0.3);
+    }
+
+    private void slightLeft() {
+        wheels.drive(0.1, 0.3);
+    }
 }
