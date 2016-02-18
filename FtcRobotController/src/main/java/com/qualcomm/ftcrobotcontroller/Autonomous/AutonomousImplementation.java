@@ -140,7 +140,7 @@ public class AutonomousImplementation {
 
     private void processDualSensorContact(int left, int right) {
         
-        if (Math.abs(left - right) <= 1) { //two sensors both equally on the white line
+        if (Math.abs(left - right) <= 1) { //both sensors equally on the white line
             strongStraight();
             data = "Dual Sensor Contact Close To Equal";
         } else if (left > right) { //left more on the white line
@@ -182,4 +182,3 @@ public class AutonomousImplementation {
         PRIMARY_SENSOR_CONTACT, SECONDARY_SENSOR_CONTACT, WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY, DUAL_SENSOR_CONTACT
     }
 }
- 
