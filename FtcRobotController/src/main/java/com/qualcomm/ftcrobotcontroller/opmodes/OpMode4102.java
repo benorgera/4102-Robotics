@@ -49,11 +49,11 @@ public class OpMode4102 extends LinearOpMode {
 
         wheels = new Wheels(hardwareMap.dcMotor.get("Left"), hardwareMap.dcMotor.get("Right"), n);
 
-        arm = new Arm(hardwareMap.servo.get("Latch"), hardwareMap.servo.get("ArmHolder"), hardwareMap.dcMotor.get("Arm"), n);
+        arm = new Arm(hardwareMap.servo.get("Latch"), hardwareMap.servo.get("ArmHolder"), hardwareMap.dcMotor.get("Arm"));
 
         allClearSignHitters = new AllClearSignHitters(hardwareMap.dcMotor.get("AllClear"), n);
 
-        climberDepositor = new ClimberDepositor(hardwareMap.servo.get("PL Arm"), hardwareMap.servo.get("PL Drop"), n);
+        climberDepositor = new ClimberDepositor(hardwareMap.servo.get("PL Arm"), hardwareMap.servo.get("PL Drop"));
 
         zipLineHitters = new ZipLineHitters(hardwareMap.servo.get("Zip"), hardwareMap.servo.get("Zip2"), n);
 

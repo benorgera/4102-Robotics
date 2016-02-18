@@ -12,14 +12,12 @@ public class Arm {
     private DcMotor motor;
     private Servo latchServo;
     private Servo armHolder;
-    private Necessities n;
 
 
     private boolean latched = false;
 
-    public Arm(Servo latchServo, Servo armHolder, DcMotor motor, Necessities n) {
+    public Arm(Servo latchServo, Servo armHolder, DcMotor motor) {
         this.motor = motor;
-        this.n = n;
         this.latchServo = latchServo;
         this.armHolder = armHolder;
 
@@ -36,7 +34,7 @@ public class Arm {
 
         armHolder.setPosition(0);
         motor.setPower(direction == MyDirection.UP ? 1 : -1);
-        n.syso("Spooling Arm " + (direction == MyDirection.UP ? "Out" : "In"), "Arm Data");
+
     }
 
     public void stop() {
@@ -48,11 +46,9 @@ public class Arm {
         if (latched) {
             latched = false;
             latchServo.setPosition(0.12);
-            n.syso("Latches Unlatched", "Arm Data");
         } else {
             latched = true;
             latchServo.setPosition(1);
-            n.syso("Latches Latched", "Arm Data");
         }
 
     }

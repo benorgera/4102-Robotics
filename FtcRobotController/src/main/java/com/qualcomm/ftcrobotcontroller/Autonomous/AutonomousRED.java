@@ -37,7 +37,7 @@ public class AutonomousRED extends LinearOpMode {
 
         pusher = new ButtonPusher(hardwareMap.servo.get("BP"), hardwareMap.colorSensor.get("Left Color Sensor"), hardwareMap.colorSensor.get("Right Color Sensor"), hardwareMap.led.get("Left LED"), hardwareMap.led.get("Right LED"), n);
 
-        depositor = new ClimberDepositor(hardwareMap.servo.get("PL Arm"), hardwareMap.servo.get("PL Drop"), n);
+        depositor = new ClimberDepositor(hardwareMap.servo.get("PL Arm"), hardwareMap.servo.get("PL Drop"));
 
         wheels = new Wheels(hardwareMap.dcMotor.get("Left"), hardwareMap.dcMotor.get("Right"), n);
 
@@ -63,6 +63,7 @@ public class AutonomousRED extends LinearOpMode {
                 pusher,
                 depositor,
                 color);
+
         implementation.run();
 
     }

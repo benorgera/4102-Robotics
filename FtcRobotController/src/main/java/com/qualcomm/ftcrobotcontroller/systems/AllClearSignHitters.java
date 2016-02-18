@@ -10,9 +10,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class AllClearSignHitters {
 
     private DcMotor motor;
-    private OpMode4102 opMode;
-
-    private Necessities n;
 
     private double movePower = 0.1;
 

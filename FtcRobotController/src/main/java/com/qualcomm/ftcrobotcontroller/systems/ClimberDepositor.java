@@ -10,7 +10,6 @@ public class ClimberDepositor {
 
     private Servo swingServo;
     private Servo dropServo;
-    private Necessities n;
 
     MyDirection dropPosition = MyDirection.CLOSED;
     MyDirection swingPosition = MyDirection.CLOSED;
@@ -18,10 +17,9 @@ public class ClimberDepositor {
     private final double[] swingPositions = {Servo.MAX_POSITION, Servo.MIN_POSITION}; //swing arm positions (in and out respectively)
     private final double[] dropPositions = {Servo.MIN_POSITION + .2, Servo.MAX_POSITION}; //drop door positions (hold and drop respectively)
 
-    public ClimberDepositor(Servo swingServo, Servo dropServo, Necessities n) {
+    public ClimberDepositor(Servo swingServo, Servo dropServo) {
         this.swingServo = swingServo;
         this.dropServo = dropServo;
-        this.n = n;
 
         neutralizeServos();
     }
@@ -47,7 +45,7 @@ public class ClimberDepositor {
         if (dropPosition == MyDirection.CLOSED) { //its closed, open it
             dropServo.setPosition(dropPositions[1]);
             dropPosition = MyDirection.OPEN;
-        } else {
+        } else { //its open, close it
             dropServo.setPosition(dropPositions[0]);
             dropPosition = MyDirection.CLOSED;
         }
