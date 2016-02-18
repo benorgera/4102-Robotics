@@ -1,4 +1,4 @@
-package com.qualcomm.ftcrobotcontroller.Autonomous;
+package com.qualcomm.ftcrobotcontroller.autonomous;
 
 import com.qualcomm.ftcrobotcontroller.systems.ButtonPusher;
 import com.qualcomm.ftcrobotcontroller.systems.ClimberDepositor;

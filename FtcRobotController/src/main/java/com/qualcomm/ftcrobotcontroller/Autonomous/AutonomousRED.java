@@ -1,7 +1,5 @@
 
-package com.qualcomm.ftcrobotcontroller.Autonomous;
-
-import android.graphics.Color;
+package com.qualcomm.ftcrobotcontroller.autonomous;
 
 import com.qualcomm.ftcrobotcontroller.systems.ButtonPusher;
 import com.qualcomm.ftcrobotcontroller.systems.ClimberDepositor;
@@ -9,8 +7,6 @@ import com.qualcomm.ftcrobotcontroller.systems.MyDirection;
 import com.qualcomm.ftcrobotcontroller.systems.Necessities;
 import com.qualcomm.ftcrobotcontroller.systems.Wheels;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 
 /**

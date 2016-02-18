@@ -31,8 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.ftcrobotcontroller.Autonomous.AutonomousRED;
-import com.qualcomm.ftcrobotcontroller.Autonomous.AutonomousBLUE;
+import com.qualcomm.ftcrobotcontroller.autonomous.AutonomousRED;
+import com.qualcomm.ftcrobotcontroller.autonomous.AutonomousBLUE;
+import com.qualcomm.ftcrobotcontroller.chsopmodes.ODS_TEST;
+import com.qualcomm.ftcrobotcontroller.chsopmodes.OpMode4102;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 

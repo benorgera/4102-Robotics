@@ -1,8 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.systems;
 
-import com.qualcomm.ftcrobotcontroller.opmodes.OpMode4102;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by benorgera on 10/31/15.
