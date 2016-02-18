@@ -51,6 +51,10 @@ public class ClimberDepositor {
         }
     }
 
+    public void threeQuarterSwing() { //autonomous swing to avoid the beacon and the zip line string
+        swingServo.setPosition(0.2);
+    }
+
 
 
 }

@@ -28,8 +28,9 @@ public class AutonomousImplementation {
     
     private int whiteSignalThreshold = 12; //this signal must be read by color sensors for them to be considered as on the white line
     
-    private double distanceThreshold = 0.2; //this signal must be read by the ods for it to be considered as touching the beacon
-    
+    private double distanceThreshold = 0.2; //this signal must be read by the ODS for it to be considered as touching the beacon
+
+    private double backupDistance = 0.5; //the ODS reading differential the robot backs up by to ensure that the climbers are in the bin
 
     public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ButtonPusher pusher, ClimberDepositor depositor, MyDirection color) {
         this.n = n;
@@ -46,7 +47,7 @@ public class AutonomousImplementation {
 
         while (ods.getLightDetected() < distanceThreshold) { //once we have reached the beacon, this condition is no longer true
 
-            //green is used as a measure of the white line because blue and red are found on the field, while green is not
+            //green is used as a measure of the white line because blue and red are found on the field, whereas green is not
             int left = leftBottom.green();
             int right = rightBottom.green();
 
@@ -82,7 +83,15 @@ public class AutonomousImplementation {
 
         n.syso("Beacon Reached", "DATA");
 
-        n.sleep(1000); //wait for robot to stabilize
+        depositor.swing(); //swing out the preload arm over the bin
+
+        n.syso("Preload Arm Deployed", "DATA");
+        
+        driveBack(backupDistance); //back up to ensure the climbers are in the bin and not stuck on the edge
+
+        n.syso("Drove Back", "DATA");
+
+        n.sleep(2000); //wait for the robot to stabilize
 
         depositor.drop(); //drop the climbers
 
@@ -98,7 +107,7 @@ public class AutonomousImplementation {
             stage = Stage.SECONDARY_SENSOR_CONTACT;
             n.sleep(500); //wait for robot to stop
         } else { //primary sensor is not yet on the white line
-            strongStraight();
+            strongForward();
             data = "Waiting For Primary Sensor Contact";
         }
 
@@ -112,7 +121,7 @@ public class AutonomousImplementation {
             stage = Stage.WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY;
             n.sleep(500); //wait for robot to stop
         } else { //secondary sensor is not yet on the white line
-            weakStraight();
+            weakForward();
             data = "Waiting For Secondary Sensor Contact";
         }
 
@@ -125,7 +134,7 @@ public class AutonomousImplementation {
             wheels.stop();
             data = "Primary Surpassed Secondary";
             stage = Stage.DUAL_SENSOR_CONTACT;
-            depositor.swing(); //bring out the preload arm
+            depositor.threeQuarterSwing(); //bring out the preload arm
             n.sleep(500); //wait for robot to stop
         } else { //robot not yet parallel to the line
             if (color == MyDirection.BLUE) {
@@ -141,7 +150,7 @@ public class AutonomousImplementation {
     private void processDualSensorContact(int left, int right) {
         
         if (Math.abs(left - right) <= 1) { //both sensors equally on the white line
-            strongStraight();
+            strongForward();
             data = "Dual Sensor Contact Close To Equal";
         } else if (left > right) { //left more on the white line
             slightLeft();
@@ -152,7 +161,33 @@ public class AutonomousImplementation {
         }
         
     }
+    
+    private void driveBack(double odsReadingDifferential) { //backs up the robot until the ods reading drops by the inputted value
 
+        double initialReading = getAverageOdsReading(5); //initial reading of ODS over 5 cycles
+
+        long startTime = System.currentTimeMillis();
+
+        while ((initialReading - ods.getLightDetected()) < odsReadingDifferential) { //drive back until the reading drops by the odsReadingDifferential
+            if (System.currentTimeMillis() - startTime > 2500) break; //don't get stuck in this loop for more than 3 seconds
+            strongReverse();
+            n.waitCycle();
+        }
+        
+        wheels.stop();
+    }
+
+    private double getAverageOdsReading(int cycles) { //get average reading of n ODS cycles
+
+        double res = 0.0;
+
+        for (int i = 0; i < cycles; i++) {
+            res += ods.getLightDetected();
+            n.waitCycle();
+        }
+
+        return res / cycles;
+    }
 
     private void strongRight() {
         wheels.drive(0.3, -0.3);
@@ -170,12 +205,16 @@ public class AutonomousImplementation {
         wheels.drive(0.0, 0.4);
     }
 
-    private void strongStraight() {
+    private void strongForward() {
         wheels.drive(0.2, 0.2);
     }
 
-    private void weakStraight() {
+    private void weakForward() {
         wheels.drive(0.15, 0.15);
+    }
+    
+    private void strongReverse() {
+        wheels.drive(-0.2, -0.2);
     }
 
     private enum Stage {
