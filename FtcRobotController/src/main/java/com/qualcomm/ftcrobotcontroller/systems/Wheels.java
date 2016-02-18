@@ -54,13 +54,7 @@ public class Wheels {
 
         if (rightWheelsPower < -1) rightWheelsPower = -1;
 
-
-        n.syso("Left wheels set to power " + leftWheelsPower, "Wheels Data:");
-
-
         left.setPower(leftWheelsPower);
-
-        n.syso("Right wheels set to power " + rightWheelsPower, "Wheels Data:");
 
         right.setPower(rightWheelsPower);
 
