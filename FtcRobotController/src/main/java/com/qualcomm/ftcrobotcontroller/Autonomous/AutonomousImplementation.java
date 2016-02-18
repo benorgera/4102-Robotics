@@ -22,7 +22,7 @@ public class AutonomousImplementation {
     private ButtonPusher pusher;
     private MyDirection color;
     private ClimberDepositor depositor;
-    private Stage stage = AutonomousImplementation.Stage.INITIAL_SENSOR_CONTACT;
+    private Stage stage = AutonomousImplementation.Stage.PRIMARY_SENSOR_CONTACT;
     
     private String data = "";
     
@@ -51,18 +51,18 @@ public class AutonomousImplementation {
             int right = rightBottom.green();
 
             //primary: first sensor to cross the white line
-            //secondary: secondary sensor to cross the white line
+            //secondary: second sensor to cross the white line
             int primary = color == MyDirection.BLUE ? left : right;
             int secondary = color == MyDirection.BLUE ? right : left;
 
             switch (stage) {
-                case INITIAL_SENSOR_CONTACT:
+                case PRIMARY_SENSOR_CONTACT:
                     processPrimarySensorContact(primary);
                     break;
                 case SECONDARY_SENSOR_CONTACT:
                     processSecondSensorContact(secondary);
                     break;
-                case WAITING_FOR_INITIAL_TO_SURPASS_SECONDARY:
+                case WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY:
                     processWaitingForPrimaryToSurpassSecondary(primary, secondary);
                     break;
                 case DUAL_SENSOR_CONTACT:
@@ -109,7 +109,7 @@ public class AutonomousImplementation {
         if (secondary > whiteSignalThreshold) { //secondary sensor is on the white line
             wheels.stop();
             data = "Made Secondary Sensor Contact";
-            stage = Stage.WAITING_FOR_INITIAL_TO_SURPASS_SECONDARY;
+            stage = Stage.WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY;
             n.sleep(500); //wait for robot to stop
         } else { //secondary sensor is not yet on the white line
             weakStraight();
@@ -179,6 +179,7 @@ public class AutonomousImplementation {
     }
 
     private enum Stage {
-        INITIAL_SENSOR_CONTACT, SECONDARY_SENSOR_CONTACT, WAITING_FOR_INITIAL_TO_SURPASS_SECONDARY, DUAL_SENSOR_CONTACT
+        PRIMARY_SENSOR_CONTACT, SECONDARY_SENSOR_CONTACT, WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY, DUAL_SENSOR_CONTACT
     }
 }
+ 
