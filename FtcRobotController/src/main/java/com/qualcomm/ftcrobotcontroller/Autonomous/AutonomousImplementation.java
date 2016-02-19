@@ -28,9 +28,9 @@ public class AutonomousImplementation {
     
     private int whiteSignalThreshold = 12; //this signal must be read by color sensors for them to be considered as on the white line
     
-    private double distanceThreshold = 0.2; //this signal must be read by the ODS for it to be considered as touching the beacon
+    private double distanceThreshold = 0.25; //this signal must be read by the ODS for it to be considered as touching the beacon
 
-    private double backupDistance = 0.5; //the ODS reading differential the robot backs up by to ensure that the climbers are in the bin
+    private double backupDistance = 0.07; //the ODS reading differential the robot backs up by to ensure that the climbers are in the bin
 
     public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ButtonPusher pusher, ClimberDepositor depositor, MyDirection color) {
         this.n = n;
@@ -57,6 +57,9 @@ public class AutonomousImplementation {
             int secondary = color == MyDirection.BLUE ? right : left;
 
             switch (stage) {
+                case SENSOR_CONTACT_AND_DEBRIS_SWEEP:
+                    processSensorContactAndDebrisSweep(left, right);
+                    break;
                 case PRIMARY_SENSOR_CONTACT:
                     processPrimarySensorContact(primary);
                     break;
@@ -87,17 +90,34 @@ public class AutonomousImplementation {
 
         n.syso("Preload Arm Deployed", "DATA");
         
-        driveBack(backupDistance); //back up to ensure the climbers are in the bin and not stuck on the edge
+        driveBackOds(backupDistance); //back up to ensure the climbers are in the bin and not stuck on the edge
 
         n.syso("Drove Back", "DATA");
 
-        n.sleep(2000); //wait for the robot to stabilize
+        n.sleep(1500); //wait for the robot to stabilize
 
         depositor.drop(); //drop the climbers
 
         n.syso("Climbers Dropped", "DATA");
 
     }
+
+    private void processSensorContactAndDebrisSweep(int left, int right) {
+        if (left > whiteSignalThreshold || right > whiteSignalThreshold) { //one of the sensors is on the white line
+            wheels.stop();
+            data = "Made Sensor Contact And Swept Debris";
+            n.sleep(500); //wait for robot to stop
+            driveByTime(1000, MyDirection.UP); //drive forward to push accumulated debris out of the way
+            n.sleep(500); //wait for robot to stop
+            driveByTime(1500, MyDirection.DOWN); //drive back to sense line again
+            stage = Stage.PRIMARY_SENSOR_CONTACT;
+        } else { //neither sensor is on the white line
+            strongForward();
+            data = "Waiting For Primary Sensor Contact";
+        }
+
+    }
+
 
     private void processPrimarySensorContact(int primary) {
         
@@ -130,7 +150,7 @@ public class AutonomousImplementation {
 
     private void processWaitingForPrimaryToSurpassSecondary(int primary, int secondary) {
         
-        if (primary >= secondary) { //robot parallel to the line or has surpassed parallel
+        if (primary > (secondary + 1)) { //robot parallel to the line or has surpassed parallel
             wheels.stop();
             data = "Primary Surpassed Secondary";
             stage = Stage.DUAL_SENSOR_CONTACT;
@@ -162,18 +182,34 @@ public class AutonomousImplementation {
         
     }
     
-    private void driveBack(double odsReadingDifferential) { //backs up the robot until the ods reading drops by the inputted value
+    private void driveBackOds(double odsReadingDifferential) { //backs up the robot until the ods reading drops by the inputted value
 
         double initialReading = getAverageOdsReading(5); //initial reading of ODS over 5 cycles
 
         long startTime = System.currentTimeMillis();
 
-        while ((initialReading - ods.getLightDetected()) < odsReadingDifferential) { //drive back until the reading drops by the odsReadingDifferential
+        while (initialReading - ods.getLightDetected() < odsReadingDifferential) { //drive back until the reading drops by the odsReadingDifferential
             if (System.currentTimeMillis() - startTime > 2500) break; //don't get stuck in this loop for more than 3 seconds
             strongReverse();
             n.waitCycle();
         }
         
+        wheels.stop();
+    }
+
+    private void driveByTime(long ms, MyDirection direction) { //drives robot forward or backward for a given amount of time
+
+        long startTime = System.currentTimeMillis(); //initial time
+
+        while (System.currentTimeMillis() - startTime < ms) { //back up until the time reading increases by the specified amount of milliseconds
+            if (direction == MyDirection.DOWN) {
+                strongReverse();
+            } else {
+                strongForward();
+            }
+            n.waitCycle();
+        }
+
         wheels.stop();
     }
 
@@ -214,10 +250,10 @@ public class AutonomousImplementation {
     }
     
     private void strongReverse() {
-        wheels.drive(-0.2, -0.2);
+        wheels.drive(-0.15, -0.15);
     }
 
     private enum Stage {
-        PRIMARY_SENSOR_CONTACT, SECONDARY_SENSOR_CONTACT, WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY, DUAL_SENSOR_CONTACT
+        SENSOR_CONTACT_AND_DEBRIS_SWEEP, PRIMARY_SENSOR_CONTACT, SECONDARY_SENSOR_CONTACT, WAITING_FOR_PRIMARY_TO_SURPASS_SECONDARY, DUAL_SENSOR_CONTACT
     }
 }
