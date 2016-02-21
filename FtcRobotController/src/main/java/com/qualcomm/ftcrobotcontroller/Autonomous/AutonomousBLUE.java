@@ -37,6 +37,8 @@ public class AutonomousBLUE extends LinearOpMode {
 
         wheels = new Wheels(hardwareMap.dcMotor.get("Left"), hardwareMap.dcMotor.get("Right"), n);
 
+        hardwareMap.gyroSensor.get("gyro").calibrate();
+
         n.syso("Initializing Autonomous Completed", "Initializing:");
     }
 
@@ -57,7 +59,9 @@ public class AutonomousBLUE extends LinearOpMode {
                 hardwareMap.colorSensor.get("Front Right CS"),
                 pusher,
                 depositor,
-                color);
+                hardwareMap.gyroSensor.get("gyro"),
+                hardwareMap.servo.get("Zip2"),
+                color, this);
 
         implementation.run();
 
