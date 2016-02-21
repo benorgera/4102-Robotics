@@ -124,7 +124,7 @@ public class AutonomousImplementation {
 
         n.syso("Drove Back", "DATA");
 
-        if (color == MyDirection.RED) driveByTime(650, MyDirection.LEFT);
+        if (color == MyDirection.RED) driveByTime(650, MyDirection.LEFT); //compensate for the climber depositor arm being on the right side of the robot
 
         n.sleep(1500); //wait for the robot to stabilize
 
@@ -150,7 +150,7 @@ public class AutonomousImplementation {
 
 
     private void processPrimarySensorContact(int primary) {
-        
+
         if (primary > whiteSignalThreshold) { //primary sensor is on the white line
             wheels.stop();
             data = "Made Primary Sensor Contact";
@@ -273,9 +273,9 @@ public class AutonomousImplementation {
 
             avg /= readingsNum;
 
-            gyroConstant = avg < gyroFreezeThreshold ? (gyroConstant + 0.05) : (gyroConstant - 0.05); //up the gyro constant if we're going to slow, lower it if we're ok
+            gyroConstant = avg < gyroFreezeThreshold ? (gyroConstant + 0.05) : (gyroConstant - 0.05); //up the gyro constant if its moving too slowly, lower it if its moving
 
-            if (gyroConstant < 1.0) gyroConstant = 1.0; //clip the gyro constant so we don't go too slow
+            if (gyroConstant < 1.0) gyroConstant = 1.0; //clip the gyro constant so ot doesn't go too slow
 
             if (gyroConstant > gyroConstantMax) gyroConstant = gyroConstantMax; //clip the gyro constant so we don't set the speed too high
 
