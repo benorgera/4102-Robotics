@@ -33,7 +33,7 @@ public class Arm {
     public void spool(MyDirection direction) {
 
         armHolder.setPosition(0);
-        motor.setPower(direction == MyDirection.UP ? 1 : -1);
+        motor.setPower(direction == MyDirection.UP ? -1 : 1);
 
     }
 

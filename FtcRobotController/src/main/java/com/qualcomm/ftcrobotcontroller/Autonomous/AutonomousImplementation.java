@@ -6,14 +6,11 @@ import com.qualcomm.ftcrobotcontroller.systems.MyDirection;
 import com.qualcomm.ftcrobotcontroller.systems.Necessities;
 import com.qualcomm.ftcrobotcontroller.systems.Wheels;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import java.util.ArrayList;
-import java.util.Stack;
 
 /**
  * Created by benorgera on 12/22/15.
@@ -123,12 +120,11 @@ public class AutonomousImplementation {
 
         n.syso("Preload Arm Deployed", "DATA");
 
-        if (color == MyDirection.BLUE) {
-            driveBackOds(backupDistance); //back up to ensure the climbers are in the bin and not stuck on the edge
-        } else {
-            driveByTime(850, MyDirection.LEFT);
-        }
+        driveBackOds(backupDistance); //back up to ensure the climbers are in the bin and not stuck on the edge
+
         n.syso("Drove Back", "DATA");
+
+        if (color == MyDirection.RED) driveByTime(650, MyDirection.LEFT);
 
         n.sleep(1500); //wait for the robot to stabilize
 
@@ -143,9 +139,7 @@ public class AutonomousImplementation {
             wheels.stop();
             data = "Made Sensor Contact And Swept Debris";
             n.sleep(500); //wait for robot to stop
-            driveByTime(1500, MyDirection.UP); //drive forward to push accumulated debris out of the way
-            n.sleep(500); //wait for robot to stop
-            driveByTime(3000, MyDirection.DOWN); //drive back to sense line again
+            driveByTime(2500, MyDirection.UP); //drive forward to push accumulated debris out of the way
             stage = Stage.PRIMARY_SENSOR_CONTACT;
         } else { //neither sensor is on the white line
             strongForward();
@@ -163,7 +157,7 @@ public class AutonomousImplementation {
             stage = Stage.SECONDARY_SENSOR_CONTACT;
             n.sleep(500); //wait for robot to stop
         } else { //primary sensor is not yet on the white line
-            strongForward();
+            strongReverse();
             data = "Waiting For Primary Sensor Contact";
         }
 
@@ -226,6 +220,7 @@ public class AutonomousImplementation {
         while (initialReading - ods.getLightDetected() < odsReadingDifferential &&  opMode.opModeIsActive()) { //drive back until the reading drops by the odsReadingDifferential
             if (System.currentTimeMillis() - startTime > 2500) break; //don't get stuck in this loop for more than 3 seconds
             strongReverse();
+            checkGyro();
             n.waitCycle();
         }
         
