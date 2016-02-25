@@ -24,7 +24,7 @@ public class AutonomousImplementation {
     private OpticalDistanceSensor ods;
     private ColorSensor leftBottom;
     private ColorSensor rightBottom;
-    private ButtonPusher pusher;
+//    private ButtonPusher pusher;
     private MyDirection color;
     private ClimberDepositor depositor;
     private GyroSensor gyro;
@@ -46,12 +46,12 @@ public class AutonomousImplementation {
 
     private double gyroConstant = 1.0; //coefficient of driving
 
-    private int gyroFreezeThreshold = 90; //the gyro reading needed to signify that the robot isn't moving
+    private int gyroFreezeThreshold = 95; //the gyro reading needed to signify that the robot isn't moving
 
-    public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ButtonPusher pusher, ClimberDepositor depositor, GyroSensor gyro, Servo weirdServo, MyDirection color, LinearOpMode opMode) {
+    public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ClimberDepositor depositor, GyroSensor gyro, Servo zipLineServo, MyDirection color, LinearOpMode opMode) {
         this.n = n;
         this.ods = ods;
-        this.pusher = pusher;
+//        this.pusher = pusher;
         this.wheels = wheels;
         this.color = color;
         this.gyro = gyro;
@@ -60,7 +60,7 @@ public class AutonomousImplementation {
         this.rightBottom = rightBottom;
         this.opMode = opMode;
 
-        weirdServo.setPosition(0.7);
+        zipLineServo.setPosition(0.7); //move the zip line hitter inside the robot
     }
 
     public void run() {
@@ -148,7 +148,6 @@ public class AutonomousImplementation {
 
     }
 
-
     private void processPrimarySensorContact(int primary) {
 
         if (primary > whiteSignalThreshold) { //primary sensor is on the white line
@@ -176,7 +175,6 @@ public class AutonomousImplementation {
         }
 
     }
-
 
     private void processWaitingForPrimaryToSurpassSecondary(int primary, int secondary) {
         
@@ -259,27 +257,29 @@ public class AutonomousImplementation {
         return res / cycles;
     }
 
-    private void checkGyro() { //if the robot isn't moving, increase the power of the driving
+    private void checkGyro() { //if the robot isn't moving (its stuck on debris), up gyroConstant in order to drive with more power
 
         gyroReadings.add(Math.abs(gyro.rawX()) + Math.abs(gyro.rawY()));
 
         if (gyroReadings.size() == readingsNum) { //we have our 400 readings
 
-            gyroReadings.remove((int) 0); //remove the first reading of the 400
+            gyroReadings.remove((int) 0); //remove the first reading of the 100
 
-            int avg = 0;
-
-            for (Integer reading : gyroReadings) avg += reading;
-
-            avg /= readingsNum;
-
-            gyroConstant = avg < gyroFreezeThreshold ? (gyroConstant + 0.05) : (gyroConstant - 0.05); //up the gyro constant if its moving too slowly, lower it if its moving
+            gyroConstant = getGyroReadingsAverage() < gyroFreezeThreshold ? (gyroConstant + 0.05) : (gyroConstant - 0.05); //up the gyro constant if its moving too slowly, lower it if its moving
 
             if (gyroConstant < 1.0) gyroConstant = 1.0; //clip the gyro constant so ot doesn't go too slow
 
             if (gyroConstant > gyroConstantMax) gyroConstant = gyroConstantMax; //clip the gyro constant so we don't set the speed too high
 
         }
+    }
+
+    private double getGyroReadingsAverage() { //average the past readingsNum readings of the gyro, to see if the robot is moving too slowly
+        int avg = 0;
+
+        for (Integer reading : gyroReadings) avg += reading;
+
+        return avg / readingsNum;
     }
 
     private void strongRight() {

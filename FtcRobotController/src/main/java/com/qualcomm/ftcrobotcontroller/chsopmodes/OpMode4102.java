@@ -82,10 +82,6 @@ public class OpMode4102 extends LinearOpMode {
 
             lastDropState = temp;
 
-            if (gamepad1.left_bumper) wheels.toggleHolding(false);
-
-            if (gamepad1.right_bumper) wheels.toggleHolding(true);
-
             if (gamepad1.dpad_down) wheels.toggleBackward(true);
 
             if (gamepad1.dpad_up) wheels.toggleBackward(false);
@@ -126,14 +122,14 @@ public class OpMode4102 extends LinearOpMode {
             lastLatchState = temp;
 
 
-            temp = gamepad2.left_bumper;
+            temp = gamepad1.left_bumper;
 
             if (temp && !lastZipState) zipLineHitters.toggleLeft(); //toggle
 
             lastZipState = temp;
 
 
-            temp = gamepad2.right_bumper;
+            temp = gamepad1.right_bumper;
 
             if (temp && !lastZip2State) zipLineHitters.toggleRight(); //toggle
 
