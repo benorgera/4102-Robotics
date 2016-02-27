@@ -29,9 +29,9 @@ public class AutonomousBLUE extends LinearOpMode {
 
         n = new Necessities(this.telemetry, this);
 
-        n.syso("Initializing Autonomous Began", "Initializing:");
+        hardwareMap.servo.get("Zip2").setPosition(0.7);
 
-//        pusher = new ButtonPusher(hardwareMap.servo.get("BP"), hardwareMap.colorSensor.get("Left Color Sensor"), hardwareMap.colorSensor.get("Right Color Sensor"), hardwareMap.led.get("Left LED"), hardwareMap.led.get("Right LED"), n);
+        n.syso("Initializing Autonomous Began", "Initializing:");
 
         depositor = new ClimberDepositor(hardwareMap.servo.get("PL Arm"), hardwareMap.servo.get("PL Drop"));
 
@@ -59,7 +59,6 @@ public class AutonomousBLUE extends LinearOpMode {
                 hardwareMap.colorSensor.get("Front Right CS"),
                 depositor,
                 hardwareMap.gyroSensor.get("gyro"),
-                hardwareMap.servo.get("Zip2"),
                 color, this);
 
         implementation.run();

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import java.util.ArrayList;
 
 /**
@@ -24,15 +23,14 @@ public class AutonomousImplementation {
     private OpticalDistanceSensor ods;
     private ColorSensor leftBottom;
     private ColorSensor rightBottom;
-//    private ButtonPusher pusher;
     private MyDirection color;
     private ClimberDepositor depositor;
     private GyroSensor gyro;
     private Stage stage = Stage.SENSOR_CONTACT_AND_DEBRIS_SWEEP;
 
     private String data = "";
-    
-    private int whiteSignalThreshold = 12; //this signal must be read by color sensors for them to be considered as on the white line
+
+    private int whiteSignalThreshold = 13; //this signal must be read by color sensors for them to be considered as on the white line
     
     private double distanceThreshold = 0.13; //this signal must be read by the ODS for it to be considered as touching the beacon
 
@@ -48,10 +46,9 @@ public class AutonomousImplementation {
 
     private int gyroFreezeThreshold = 95; //the gyro reading needed to signify that the robot isn't moving
 
-    public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ClimberDepositor depositor, GyroSensor gyro, Servo zipLineServo, MyDirection color, LinearOpMode opMode) {
+    public AutonomousImplementation(Necessities n, Wheels wheels, OpticalDistanceSensor ods, ColorSensor leftBottom, ColorSensor rightBottom, ClimberDepositor depositor, GyroSensor gyro, MyDirection color, LinearOpMode opMode) {
         this.n = n;
         this.ods = ods;
-//        this.pusher = pusher;
         this.wheels = wheels;
         this.color = color;
         this.gyro = gyro;
@@ -59,8 +56,6 @@ public class AutonomousImplementation {
         this.leftBottom = leftBottom;
         this.rightBottom = rightBottom;
         this.opMode = opMode;
-
-        zipLineServo.setPosition(0.7); //move the zip line hitter inside the robot
     }
 
     public void run() {
@@ -124,7 +119,7 @@ public class AutonomousImplementation {
 
         n.syso("Drove Back", "DATA");
 
-        if (color == MyDirection.RED) driveByTime(650, MyDirection.LEFT); //compensate for the climber depositor arm being on the right side of the robot
+        if (color == MyDirection.RED) turn(-25); //compensate for the climber depositor arm being on the right side of the robot
 
         n.sleep(1500); //wait for the robot to stabilize
 
@@ -163,7 +158,7 @@ public class AutonomousImplementation {
     }
 
     private void processSecondSensorContact(int primary, int secondary) {
-        
+
         if (secondary > whiteSignalThreshold && primary < whiteSignalThreshold) { //secondary sensor is on the white line
             wheels.stop();
             data = "Made Secondary Sensor Contact";
@@ -177,7 +172,7 @@ public class AutonomousImplementation {
     }
 
     private void processWaitingForPrimaryToSurpassSecondary(int primary, int secondary) {
-        
+
         if (primary > (secondary + 6)) { //robot parallel to the line or has surpassed parallel
             wheels.stop();
             data = "Primary Surpassed Secondary";
@@ -195,7 +190,7 @@ public class AutonomousImplementation {
     }
 
     private void processDualSensorContact(int left, int right) {
-        
+
         if (Math.abs(left - right) <= 1) { //both sensors equally on the white line
             strongForward();
             data = "Dual Sensor Contact Close To Equal";
@@ -206,9 +201,9 @@ public class AutonomousImplementation {
             slightRight();
             data = "Dual Sensor Contact Right Stronger";
         }
-        
+
     }
-    
+
     private void driveBackOds(double odsReadingDifferential) { //backs up the robot until the ods reading drops by the inputted value
 
         double initialReading = getAverageOdsReading(5); //initial reading of ODS over 5 cycles
@@ -221,7 +216,7 @@ public class AutonomousImplementation {
             checkGyro();
             n.waitCycle();
         }
-        
+
         wheels.stop();
     }
 
@@ -272,6 +267,61 @@ public class AutonomousImplementation {
             if (gyroConstant > gyroConstantMax) gyroConstant = gyroConstantMax; //clip the gyro constant so we don't set the speed too high
 
         }
+    }
+
+    private void turn(double threshold) { //turns using the gyro, right is positive, left is negative
+
+        forceHeadingReset();
+
+        double power;
+
+        double minPower = 0.19;
+
+        boolean thresholdIsGreaterThanZero = (threshold > 0.0);
+
+        double startSlowingAt = 4.0 / minPower;
+
+        double holdingPower = -0.3;
+
+        threshold = thresholdIsGreaterThanZero ? threshold + 180 : threshold - 180;  //add 180 to gyro reading so that the reading never jumps from 0 to 360, or vice versa
+
+        while (Math.abs(getClippedGyroReading()) < Math.abs(threshold) && opMode.opModeIsActive()) {
+
+            double degreesRemaining = Math.abs(threshold) - Math.abs(getClippedGyroReading()); //calculate remaining degrees
+
+            power = (degreesRemaining / startSlowingAt); //power is a scale of remaining distance, at startSlowingAt degrees remaining we start slowing down
+
+            if (power > 1.0) power = 1.0; //too high a power calculated
+
+            if (power < minPower) power = minPower; //too low a power calculated
+
+            wheels.drive(thresholdIsGreaterThanZero ? power : holdingPower, thresholdIsGreaterThanZero ? holdingPower : power);
+
+            n.syso("Position: " + getClippedGyroReading() + "\nTarget: " + threshold + "\nPower: " + power, "Autonomous Gyro Turn");
+
+            n.waitCycle();
+        }
+        wheels.stop();
+
+    }
+
+    private int getClippedGyroReading() {  //add 180 to gyro reading so that the reading never jumps from 0 to 360, or vice versa
+        return gyro.getHeading() + 180;
+    }
+
+
+    private void forceHeadingReset() {
+
+        gyro.resetZAxisIntegrator(); //reset heading
+
+        int count = 0;
+        while (gyro.getHeading() != 0 && opMode.opModeIsActive()) {
+            gyro.resetZAxisIntegrator();
+            count++;
+            n.syso("Waited " + count + " cycles to reset z axis integrator", "TURN DATA");
+            n.waitCycle();
+        }
+
     }
 
     private double getGyroReadingsAverage() { //average the past readingsNum readings of the gyro, to see if the robot is moving too slowly
