@@ -1,6 +1,5 @@
 package com.qualcomm.ftcrobotcontroller.autonomous;
 
-import com.qualcomm.ftcrobotcontroller.systems.ButtonPusher;
 import com.qualcomm.ftcrobotcontroller.systems.ClimberDepositor;
 import com.qualcomm.ftcrobotcontroller.systems.MyDirection;
 import com.qualcomm.ftcrobotcontroller.systems.Necessities;
@@ -28,13 +27,11 @@ public class AutonomousImplementation {
     private GyroSensor gyro;
     private Stage stage = Stage.SENSOR_CONTACT_AND_DEBRIS_SWEEP;
 
-    private String data = "";
+    private String data = ""; //the data to be printed to the phone
 
-    private int whiteSignalThreshold = 13; //this signal must be read by color sensors for them to be considered as on the white line
+    private int whiteSignalThreshold = 10; //this signal must be read by color sensors for them to be considered as on the white line
     
-    private double distanceThreshold = 0.13; //this signal must be read by the ODS for it to be considered as touching the beacon
-
-    private double backupDistance = 0.07; //the ODS reading differential the robot backs up by to ensure that the climbers are in the bin
+    private double distanceThreshold = 0.03; //this signal must be read by the ODS for it to be considered as touching the beacon
 
     private ArrayList<Integer> gyroReadings = new ArrayList<Integer>(); //gyro readings
 
@@ -115,11 +112,7 @@ public class AutonomousImplementation {
 
         n.syso("Preload Arm Deployed", "DATA");
 
-        driveBackOds(backupDistance); //back up to ensure the climbers are in the bin and not stuck on the edge
-
-        n.syso("Drove Back", "DATA");
-
-        if (color == MyDirection.RED) turn(-25); //compensate for the climber depositor arm being on the right side of the robot
+        asymptoticTurn(color == MyDirection.RED ? -25 : -13); //compensate for the climber depositor arm being on the right side of the robot
 
         n.sleep(1500); //wait for the robot to stabilize
 
@@ -129,7 +122,7 @@ public class AutonomousImplementation {
 
     }
 
-    private void processSensorContactAndDebrisSweep(int left, int right) {
+    private void processSensorContactAndDebrisSweep(int left, int right) { //wait until the white line is reached, then push debris out of the way
         if (left > whiteSignalThreshold || right > whiteSignalThreshold) { //one of the sensors is on the white line
             wheels.stop();
             data = "Made Sensor Contact And Swept Debris";
@@ -143,7 +136,7 @@ public class AutonomousImplementation {
 
     }
 
-    private void processPrimarySensorContact(int primary) {
+    private void processPrimarySensorContact(int primary) { //back up until primary sensor is on the white line again
 
         if (primary > whiteSignalThreshold) { //primary sensor is on the white line
             wheels.stop();
@@ -157,7 +150,7 @@ public class AutonomousImplementation {
 
     }
 
-    private void processSecondSensorContact(int primary, int secondary) {
+    private void processSecondSensorContact(int primary, int secondary) { //drive forward until secondary sensor is on the white line
 
         if (secondary > whiteSignalThreshold && primary < whiteSignalThreshold) { //secondary sensor is on the white line
             wheels.stop();
@@ -171,7 +164,7 @@ public class AutonomousImplementation {
 
     }
 
-    private void processWaitingForPrimaryToSurpassSecondary(int primary, int secondary) {
+    private void processWaitingForPrimaryToSurpassSecondary(int primary, int secondary) { //turn until primary sensor reading surpasses secondary sensor reading (until the robot straightens out)
 
         if (primary > (secondary + 6)) { //robot parallel to the line or has surpassed parallel
             wheels.stop();
@@ -189,7 +182,7 @@ public class AutonomousImplementation {
 
     }
 
-    private void processDualSensorContact(int left, int right) {
+    private void processDualSensorContact(int left, int right) { //turn towards the stronger sensor signal (in order to inch the rest of thw way to the beacon)
 
         if (Math.abs(left - right) <= 1) { //both sensors equally on the white line
             strongForward();
@@ -202,22 +195,6 @@ public class AutonomousImplementation {
             data = "Dual Sensor Contact Right Stronger";
         }
 
-    }
-
-    private void driveBackOds(double odsReadingDifferential) { //backs up the robot until the ods reading drops by the inputted value
-
-        double initialReading = getAverageOdsReading(5); //initial reading of ODS over 5 cycles
-
-        long startTime = System.currentTimeMillis();
-
-        while (initialReading - ods.getLightDetected() < odsReadingDifferential &&  opMode.opModeIsActive()) { //drive back until the reading drops by the odsReadingDifferential
-            if (System.currentTimeMillis() - startTime > 2500) break; //don't get stuck in this loop for more than 3 seconds
-            strongReverse();
-            checkGyro();
-            n.waitCycle();
-        }
-
-        wheels.stop();
     }
 
     private void driveByTime(long ms, MyDirection direction) { //drives robot forward or backward for a given amount of time
@@ -252,7 +229,7 @@ public class AutonomousImplementation {
         return res / cycles;
     }
 
-    private void checkGyro() { //if the robot isn't moving (its stuck on debris), up gyroConstant in order to drive with more power
+    private void checkGyro() { //if the robot isn't moving (its stuck on debris), up gyroConstant (a coefficient of the driving power) in order to drive with more power
 
         gyroReadings.add(Math.abs(gyro.rawX()) + Math.abs(gyro.rawY()));
 
@@ -269,9 +246,9 @@ public class AutonomousImplementation {
         }
     }
 
-    private void turn(double threshold) { //turns using the gyro, right is positive, left is negative
+    private void asymptoticTurn(double threshold) { //turns threshold degrees using the gyro, slowing until it reaches the destination, (right is positive, left is negative)
 
-        forceHeadingReset();
+        forceHeadingReset(); //reset the gyro turn value
 
         double power;
 
@@ -310,7 +287,7 @@ public class AutonomousImplementation {
     }
 
 
-    private void forceHeadingReset() {
+    private void forceHeadingReset() { //wait until the gyro heading is 0
 
         gyro.resetZAxisIntegrator(); //reset heading
 
@@ -324,7 +301,7 @@ public class AutonomousImplementation {
 
     }
 
-    private double getGyroReadingsAverage() { //average the past readingsNum readings of the gyro, to see if the robot is moving too slowly
+    private double getGyroReadingsAverage() { //average the past readingsNum readings of the gyro, used to see if the robot is moving too slowly
         int avg = 0;
 
         for (Integer reading : gyroReadings) avg += reading;

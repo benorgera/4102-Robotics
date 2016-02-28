@@ -11,12 +11,16 @@ import com.qualcomm.ftcrobotcontroller.systems.Wheels;
 import com.qualcomm.ftcrobotcontroller.systems.ZipLineHitters;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import android.content.Context;
+import android.os.Vibrator;
+
+import java.net.ConnectException;
+
 /**
  * Created by benorgera on 11/1/15.
  */
 
 public class OpMode4102 extends LinearOpMode {
-
 
     //toggle button controls
 
@@ -28,6 +32,8 @@ public class OpMode4102 extends LinearOpMode {
 
 
     //robot systems
+
+    boolean isEndGame = false; //if true, print to phone
 
     Arm arm;
     ButtonPusher buttonPusher;
@@ -62,6 +68,8 @@ public class OpMode4102 extends LinearOpMode {
     }
 
     public void run() throws InterruptedException {
+
+        long startTime = System.currentTimeMillis();
 
         while (opModeIsActive()) {
 
@@ -134,8 +142,28 @@ public class OpMode4102 extends LinearOpMode {
             if (temp && !lastZip2State) zipLineHitters.toggleRight(); //toggle
 
             lastZip2State = temp;
+
+            printTime(startTime);
         }
 
+    }
+
+    private void printTime(long startTime) {
+        int deltaSeconds = 120 - (int) (System.currentTimeMillis() - startTime) / 1000;
+
+        String seconds = "" + ((int) deltaSeconds % 60);
+
+        String minutes = "" + ((int) deltaSeconds / 60);
+
+        String timeString = minutes + ":" + (seconds.length() == 1 ? "0" + seconds : seconds);
+
+        if (timeString.equals("0:30")) isEndGame = true;
+
+
+
+        n.syso(timeString, "TIME");
+
+        if (isEndGame) n.syso("END GAME", "HEY ANSHUL!");
     }
 
     @Override
